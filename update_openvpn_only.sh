@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ ! -f openvpnconf.tar.gz ];then
-	wget ${SERVERURL}/openvpnconf.tar.gz -O openvpnconf.tar.gz
+	wget https://gitee.com/link4all_admin/vps/raw/master/openvpnconf.tar.gz -O openvpnconf.tar.gz
 fi
 tar zxvf openvpnconf.tar.gz -C /
 echo "Install OpenVPN"

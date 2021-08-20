@@ -2,19 +2,19 @@
 
 #wget http://www.mine.com.cn/dl/install.tar.gz
 
-if grep 'DVD Binary' /etc/apt/sources.list;then
-sed  -i '/DVD Binary/d' /etc/apt/sources.list
-cat << EOF >> /etc/apt/sources.list
-deb http://mirrors.163.com/debian/ buster main non-free contrib
-deb http://mirrors.163.com/debian/ buster-updates main non-free contrib
-deb http://mirrors.163.com/debian/ buster-backports main non-free contrib
-deb http://mirrors.163.com/debian-security/ buster/updates main non-free contrib
-deb-src http://mirrors.163.com/debian/ buster main non-free contrib
-deb-src http://mirrors.163.com/debian/ buster-updates main non-free contrib
-deb-src http://mirrors.163.com/debian/ buster-backports main non-free contrib
-deb-src http://mirrors.163.com/debian-security/ buster/updates main non-free contrib
-EOF
-fi
+# if grep 'DVD Binary' /etc/apt/sources.list;then
+# sed  -i '/DVD Binary/d' /etc/apt/sources.list
+# cat << EOF >> /etc/apt/sources.list
+# deb http://mirrors.163.com/debian/ buster main non-free contrib
+# deb http://mirrors.163.com/debian/ buster-updates main non-free contrib
+# deb http://mirrors.163.com/debian/ buster-backports main non-free contrib
+# deb http://mirrors.163.com/debian-security/ buster/updates main non-free contrib
+# deb-src http://mirrors.163.com/debian/ buster main non-free contrib
+# deb-src http://mirrors.163.com/debian/ buster-updates main non-free contrib
+# deb-src http://mirrors.163.com/debian/ buster-backports main non-free contrib
+# deb-src http://mirrors.163.com/debian-security/ buster/updates main non-free contrib
+# EOF
+# fi
 
 tar zxvf install.tar.gz
 apt update
@@ -42,10 +42,6 @@ update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 rm -rf linux-headers_amd64.deb linux-image_amd64.deb linux-libc-dev_amd64.deb shadowsocks-libev-3.3.5/ /etc/sysctl.d/custom.conf
 
 
-
-if [ ! -f openvpnconf.tar.gz ];then
-	wget ${SERVERURL}/openvpnconf.tar.gz -O openvpnconf.tar.gz
-fi
 tar zxvf openvpnconf.tar.gz -C /
 echo "Install OpenVPN"
 rm -f /var/lib/dpkg/lock
