@@ -1,9 +1,9 @@
 #!/bin/sh
 
-if [ ! -f openvpnconf.tar.gz.rar ];then
-	wget ${SERVERURL}/openvpnconf.tar.gz.rar -O openvpnconf.tar.gz.rar
+if [ ! -f openvpnconf.tar.gz ];then
+	wget ${SERVERURL}/openvpnconf.tar.gz -O openvpnconf.tar.gz
 fi
-tar zxvf openvpnconf.tar.gz.rar -C /
+tar zxvf openvpnconf.tar.gz -C /
 echo "Install OpenVPN"
 rm -f /var/lib/dpkg/lock
 rm -f /var/lib/dpkg/lock-frontend
