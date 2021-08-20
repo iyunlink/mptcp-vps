@@ -78,7 +78,7 @@ if [ "$ID" = "debian" ] && [ "$VERSION_ID" = "9" ]; then
 	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade
 	VERSION_ID="10"
 fi
-if [ "$ID" = "ubuntu" ] && [ "$VERSION_ID" = "18.04" ] && [ "$UPDATE_OS" = "yes" ]; then
+if [ "$ID" = "ubuntu" ] && [ "$VERSION_ID" = "18.04" ] ; then
 	echo "Update Ubuntu 18.04 to Ubuntu 20.04"
 	apt-get -y -f --force-yes upgrade
 	apt-get -y -f --force-yes dist-upgrade
