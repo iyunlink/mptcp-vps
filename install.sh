@@ -18,13 +18,14 @@
 
 tar zxvf install.tar.gz
 apt update
-apt -y install libpcre3-dev libmbedtls-dev libsodium-dev libc-ares-dev libev-dev  libtool automake make autoconf iperf3 ntp net-tools psmisc git python3-pip gcc
+apt -y install pkg-config libpcre3-dev libmbedtls-dev libsodium-dev libc-ares-dev libev-dev  libtool automake make autoconf iperf3 ntp net-tools psmisc git python3-pip gcc
 pip3 install speedtest-cli
 dpkg -i linux-headers_amd64.deb
 dpkg -i linux-image_amd64.deb
 dpkg -i linux-libc-dev_amd64.deb
 
 cd shadowsocks-libev-3.3.5/
+./autogen.sh
 ./configure --disable-documentation 
 make 
 cp src/ss-server /bin/

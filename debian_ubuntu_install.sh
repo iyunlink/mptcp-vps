@@ -65,6 +65,11 @@ rm -f /var/lib/dpkg/lock
 rm -f /var/lib/dpkg/lock-frontend
 rm -f /var/cache/apt/archives/lock
 apt update -y
+if [ "$?" != 0 ];then
+apt install dirmngr --install-recommends
+gpg --keyserver  pgpkeys.mit.edu --recv-keys 648ACFD622F3D138  0E98404D386FA1D9
+gpg -a --export 648ACFD622F3D138  0E98404D386FA1D9 | apt-key add -
+fi
 echo "Install apt-transport-https, gnupg etc"
 apt-get -y install apt-transport-https gnupg 
 
