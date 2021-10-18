@@ -22,7 +22,7 @@ apt -y install pkg-config libpcre3-dev libmbedtls-dev libsodium-dev libc-ares-de
 pip3 install speedtest-cli
 dpkg -i linux-headers_amd64.deb
 dpkg -i linux-image_amd64.deb
-#dpkg -i linux-libc-dev_amd64.deb
+dpkg -i linux-libc-dev_amd64.deb
 
 cd shadowsocks-libev-3.3.5/
 ./autogen.sh
