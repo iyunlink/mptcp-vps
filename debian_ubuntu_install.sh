@@ -73,26 +73,26 @@ fi
 echo "Install apt-transport-https, gnupg etc"
 apt-get -y install apt-transport-https gnupg 
 
-if [ "$ID" = "debian" ] && [ "$VERSION_ID" = "9" ]; then
-	echo "Update Debian 9 Stretch to Debian 10 Buster"
-	apt-get -y -f --force-yes upgrade
-	apt-get -y -f --force-yes dist-upgrade
-	sed -i 's:stretch:buster:g' /etc/apt/sources.list
-	apt-get update
-	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade
-	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade
-	VERSION_ID="10"
-fi
-if [ "$ID" = "ubuntu" ] && [ "$VERSION_ID" = "18.04" ] ; then
-	echo "Update Ubuntu 18.04 to Ubuntu 20.04"
-	apt-get -y -f --force-yes upgrade
-	apt-get -y -f --force-yes dist-upgrade
-	sed -i 's:bionic:focal:g' /etc/apt/sources.list
-	apt-get update
-	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade
-	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade
-	VERSION_ID="20.04"
-fi
+# if [ "$ID" = "debian" ] && [ "$VERSION_ID" = "9" ]; then
+# 	echo "Update Debian 9 Stretch to Debian 10 Buster"
+# 	apt-get -y -f --force-yes upgrade
+# 	apt-get -y -f --force-yes dist-upgrade
+# 	sed -i 's:stretch:buster:g' /etc/apt/sources.list
+# 	apt-get update
+# 	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade
+# 	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade
+# 	VERSION_ID="10"
+# fi
+# if [ "$ID" = "ubuntu" ] && [ "$VERSION_ID" = "18.04" ] ; then
+# 	echo "Update Ubuntu 18.04 to Ubuntu 20.04"
+# 	apt-get -y -f --force-yes upgrade
+# 	apt-get -y -f --force-yes dist-upgrade
+# 	sed -i 's:bionic:focal:g' /etc/apt/sources.list
+# 	apt-get update
+# 	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade
+# 	apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade
+# 	VERSION_ID="20.04"
+# fi
 
 
 apt -y install git
