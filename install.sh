@@ -16,7 +16,7 @@
 # EOF
 # fi
 
-tar zxvf install.tar.gz
+# tar zxvf install.tar.gz
 apt update
 apt -y install pkg-config libpcre3-dev libmbedtls-dev libsodium-dev libc-ares-dev libev-dev  libtool automake make autoconf iperf3 ntp net-tools psmisc git python3-pip gcc
 pip3 install speedtest-cli
@@ -43,7 +43,8 @@ update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 rm -rf linux-headers_amd64.deb linux-image_amd64.deb linux-libc-dev_amd64.deb shadowsocks-libev-3.3.5/ /etc/sysctl.d/custom.conf
 
 
-tar zxvf openvpnconf.tar.gz -C /
+# tar zxvf openvpnconf.tar.gz -C /
+cp ./etc/ / -r
 echo "Install OpenVPN"
 rm -f /var/lib/dpkg/lock
 rm -f /var/lib/dpkg/lock-frontend

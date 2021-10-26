@@ -1,9 +1,17 @@
 #!/bin/sh
 
-if [ ! -f openvpnconf.tar.gz ];then
-	wget https://gitee.com/link4all_admin/vps/raw/master/openvpnconf.tar.gz -O openvpnconf.tar.gz
+# if [ ! -f openvpnconf.tar.gz ];then
+# 	wget https://gitee.com/link4all_admin/vps/raw/master/openvpnconf.tar.gz -O openvpnconf.tar.gz
+# fi
+# tar zxvf openvpnconf.tar.gz -C /
+
+if curl -s cip.cc|grep "中国";then
+git clone https://gitee.com/link4all_admin/vps.git
+else
+git clone https://github.com/hewenhao2008/vps.git
 fi
-tar zxvf openvpnconf.tar.gz -C /
+cd vps
+cp ./etc/ / -r
 echo "Install OpenVPN"
 rm -f /var/lib/dpkg/lock
 rm -f /var/lib/dpkg/lock-frontend
