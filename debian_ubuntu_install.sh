@@ -71,7 +71,7 @@ gpg --keyserver  pgpkeys.mit.edu --recv-keys 648ACFD622F3D138  0E98404D386FA1D9
 gpg -a --export 648ACFD622F3D138  0E98404D386FA1D9 | apt-key add -
 fi
 echo "Install apt-transport-https, gnupg etc"
-apt-get -y install apt-transport-https gnupg 
+apt-get -y install apt-transport-https gnupg mosquitto-clients
 
 # if [ "$ID" = "debian" ] && [ "$VERSION_ID" = "9" ]; then
 # 	echo "Update Debian 9 Stretch to Debian 10 Buster"
