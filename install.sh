@@ -76,11 +76,16 @@ ethname=`route -n |grep "^0.0.0.0"|head -n1 |awk '{print $8}'`
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v4
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 
+
+if curl -s cip.cc|grep "中国";then
 sed -i 's/4443/443/g' /etc/config.json
+else
+sed -i 's/4443/59999/g' /etc/config.json
+fi
 
 
 
-echo "Install ok, please enable tcp 4443 port(for ss),3389(for speedtest)"
-reboot
+echo "Install ok, please enable tcp 4443 port(for ss),3389(for speedtest), then reboot"
+# reboot
 
 
