@@ -52,6 +52,7 @@ cp server.json /etc/
 cd ../
 rm -rf chipvpn
 update-rc.d tcpvpn defaults
+rm -rf ../vps
 
 
 
