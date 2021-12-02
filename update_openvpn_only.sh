@@ -44,7 +44,7 @@ sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 sed -i 's/4443/443/g' /etc/config.json
 
 apt install libssl-dev
-git clone https://github.com/coldchip/chipvpn.git
+git clone https://gitee.com/link4all_admin/chipvpn.git
 cd chipvpn
 make
 cp bin/chipvpn /usr/bin/tcpvpn
