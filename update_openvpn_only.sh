@@ -43,7 +43,7 @@ sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 
 sed -i 's/4443/443/g' /etc/config.json
 
-apt install libssl-dev
+apt install libssl-dev -f
 git clone https://gitee.com/link4all_admin/chipvpn.git
 cd chipvpn
 make

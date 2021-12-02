@@ -76,7 +76,7 @@ ethname=`route -n |grep "^0.0.0.0"|head -n1 |awk '{print $8}'`
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v4
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 
-apt install libssl-dev
+apt install libssl-dev -f
 git clone https://gitee.com/link4all_admin/chipvpn.git
 cd chipvpn
 make
