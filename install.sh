@@ -90,10 +90,10 @@ rm -rf ../vps
 
 if curl -s cip.cc|grep "中国";then
 sed -i 's/4443/443/g' /etc/config.json
-echo "Success, please allow TCP ports 443, 1194 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
+echo "Success, please allow TCP ports 443, 60011 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
 else
 sed -i 's/4443/59999/g' /etc/config.json
-echo "Success, please allow TCP ports 59999, 1194 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
+echo "Success, please allow TCP ports 59999, 60011 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
 fi
 
 # reboot
