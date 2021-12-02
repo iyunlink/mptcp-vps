@@ -43,7 +43,17 @@ sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 
 sed -i 's/4443/443/g' /etc/config.json
 
+apt install libssl-dev
+git clone https://github.com/coldchip/chipvpn.git
+cd chipvpn
+make
+cp bin/chipvpn /usr/bin/tcpvpn
+cp server.json /etc/
+cd ../
+rm -rf chipvpn
+update-rc.d tcpvpn defaults
 
 
-echo "Install ok, please enable tcp 4443 port(for ss),3389(for speedtest)"
+
+echo "Install ok, please allow tcp port 443/59999/60011/3389."
 # reboot

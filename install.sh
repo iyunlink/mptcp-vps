@@ -76,16 +76,26 @@ ethname=`route -n |grep "^0.0.0.0"|head -n1 |awk '{print $8}'`
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v4
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 
+apt install libssl-dev
+git clone https://github.com/coldchip/chipvpn.git
+cd chipvpn
+make
+cp bin/chipvpn /usr/bin/tcpvpn
+cp server.json /etc/
+cd ../
+rm -rf chipvpn
+update-rc.d tcpvpn defaults
+rm -rf ../vps
+
 
 if curl -s cip.cc|grep "中国";then
 sed -i 's/4443/443/g' /etc/config.json
+echo "Success, please allow TCP ports 443, 1194 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
 else
 sed -i 's/4443/59999/g' /etc/config.json
+echo "Success, please allow TCP ports 59999, 1194 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
 fi
 
-
-
-echo "Install ok, please enable tcp 4443 port(for ss),3389(for speedtest), then reboot"
 # reboot
 
 
