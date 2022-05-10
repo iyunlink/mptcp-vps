@@ -75,6 +75,8 @@ done
 ethname=`route -n |grep "^0.0.0.0"|head -n1 |awk '{print $8}'`
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v4
 sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
+#安装 x-ui
+bash x-ui-install.sh
 
 apt install libssl-dev -f
 git clone https://gitee.com/link4all_admin/chipvpn.git
@@ -85,6 +87,7 @@ cp server.json /etc/
 cd ../
 rm -rf chipvpn
 update-rc.d tcpvpn defaults
+bash x-ui-install.sh
 rm -rf ../vps
 
 
