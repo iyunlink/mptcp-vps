@@ -54,7 +54,13 @@ if [ "$?" -ne 0 ]; then
 	exit 1
 fi
 
-
+#clean apt
+mv /var/lib/dpkg/info  /var/lib/dpkg/info_bak
+mkdir /var/lib/dpkg/info
+apt-get update && apt-get -f install
+mv /var/lib/dpkg/info/* /var/lib/dpkg/info_bak/
+rm -rf /var/lib/dpkg/info
+mv /var/lib/dpkg/info_bak /var/lib/dpkg/info
 
 echo "Remove lock and update packages list..."
 rm -f /var/lib/dpkg/lock
