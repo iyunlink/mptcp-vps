@@ -24,6 +24,9 @@ systemctl enable openvpn-server@server
 systemctl start openvpn-server@server
 
 
+
+
+
 if grep -q '^nameserver 127.0.0.53' "/etc/resolv.conf"; then
 	resolv_conf="/run/systemd/resolve/resolv.conf"
 else
