@@ -1,0 +1,275 @@
+diff --git a/configure.ac b/configure.ac
+index 16c40bb5..04609ebf 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -314,6 +314,12 @@ AC_ARG_WITH(
+ 	[with_openssl_engine="auto"]
+ )
+ 
++AC_ARG_WITH(mptcp,
++	[AS_HELP_STRING([--without-mptcp],[Disable Multipath TCP support])],
++	[enable_mptcp=no],
++	[enable_mptcp=yes]
++)
++
+ AC_ARG_VAR([PLUGINDIR], [Path of plug-in directory @<:@default=LIBDIR/openvpn/plugins@:>@])
+ if test -n "${PLUGINDIR}"; then
+ 	plugindir="${PLUGINDIR}"
+@@ -879,6 +885,22 @@ case "$host" in
+ esac
+ 
+ 
++dnl
++dnl Checking Multipath TCP support on Linux
++dnl
++case "$host" in
++	*-*-linux*)
++		AC_MSG_CHECKING([Multipath TCP support ])
++		AS_IF([test "x$enable_mptcp" != xno],
++			[AC_DEFINE([ENABLE_MPTCP], [1],
++ 			[AC_MSG_RESULT([Multipath TCP is enabled on this system])] )],
++ 			[ AC_MSG_RESULT([Multipath TCP is not enabled. On Linux, you need a kernel >= 5.15 and ensure that sysctl.net.mptcp_enabled is set to 1]) ],
++		)
++	;;
++esac
++
++
++
+ if test "${with_crypto_library}" = "openssl"; then
+ 	AC_ARG_VAR([OPENSSL_CFLAGS], [C compiler flags for OpenSSL])
+ 	AC_ARG_VAR([OPENSSL_LIBS], [linker flags for OpenSSL])
+diff --git a/src/openvpn/init.c b/src/openvpn/init.c
+index d358ad00..6e5b2d3b 100644
+--- a/src/openvpn/init.c
++++ b/src/openvpn/init.c
+@@ -3359,7 +3359,6 @@ do_init_crypto_tls(struct context *c, const unsigned int flags)
+ #ifdef ENABLE_DEBUG
+     to.gremlin = c->options.gremlin;
+ #endif
+-
+     to.plugins = c->plugins;
+ 
+ #ifdef ENABLE_MANAGEMENT
+diff --git a/src/openvpn/options.c b/src/openvpn/options.c
+index 2c51efa6..dac82a68 100644
+--- a/src/openvpn/options.c
++++ b/src/openvpn/options.c
+@@ -137,6 +137,9 @@ static const char usage_message[] =
+     "                      udp6, tcp6-server, tcp6-client\n"
+     "--proto-force p : only consider protocol p in list of connection profiles.\n"
+     "                  p = udp or tcp\n"
++#if defined(ENABLE_MPTCP)
++    "--mptcp     : Enable Multipath TCP on the TCP connections.\n"
++#endif
+     "--connect-retry n [m] : For client, number of seconds to wait between\n"
+     "                  connection retries (default=%d). On repeated retries\n"
+     "                  the wait time is exponentially increased to a maximum of m\n"
+@@ -908,7 +911,9 @@ init_options(struct options *o, const bool init_gc)
+     }
+ #endif /* _WIN32 */
+     o->allow_recursive_routing = false;
+-
++#if defined(ENABLE_MPTCP)
++    o->enable_mptcp = false;
++#endif
+ #ifndef ENABLE_DCO
+     o->tuntap_options.disable_dco = true;
+ #endif /* ENABLE_DCO */
+@@ -9475,6 +9480,18 @@ add_option(struct options *options,
+             goto err;
+         }
+     }
++#if defined(ENABLE_MPTCP)   
++    else if (streq(p[0], "mptcp"))
++    {
++        VERIFY_PERMISSION(OPT_P_GENERAL);
++        if (p[1])
++        {
++            msg(msglevel, "--mptcp does not accept any parameters");
++            goto err;
++        }
++        options->enable_mptcp = true;
++    }
++#endif
+     else
+     {
+         int i;
+diff --git a/src/openvpn/options.h b/src/openvpn/options.h
+index f5890b90..765ce90e 100644
+--- a/src/openvpn/options.h
++++ b/src/openvpn/options.h
+@@ -461,6 +461,9 @@ struct options
+ #define SF_NO_PUSH_ROUTE_GATEWAY (1<<2)
+     unsigned int server_flags;
+ 
++#ifdef ENABLE_MPTCP
++    bool enable_mptcp;
++#endif  
+     bool server_bridge_proxy_dhcp;
+ 
+     bool server_bridge_defined;
+diff --git a/src/openvpn/ps.c b/src/openvpn/ps.c
+index 3609630a..c5f364ff 100644
+--- a/src/openvpn/ps.c
++++ b/src/openvpn/ps.c
+@@ -39,6 +39,14 @@
+ 
+ #include "memdbg.h"
+ 
++
++#if defined(ENABLE_MPTCP)
++#ifndef IPPROTO_MPTCP
++#define IPPROTO_MPTCP 262
++#endif
++#endif
++
++
+ struct port_share *port_share = NULL; /* GLOBAL */
+ 
+ /* size of i/o buffers */
+@@ -427,7 +435,11 @@ proxy_entry_new(struct proxy_connection **list,
+     struct proxy_connection *cp;
+ 
+     /* connect to port share server */
++#if defined(ENABLE_MPTCP)   
++    if ((sd_server = socket(PF_INET, SOCK_STREAM, IPPROTO_MPTCP)) < 0)
++#else
+     if ((sd_server = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
++#endif
+     {
+         msg(M_WARN|M_ERRNO, "PORT SHARE PROXY: cannot create socket");
+         return false;
+diff --git a/src/openvpn/socket.c b/src/openvpn/socket.c
+index fc643c1c..fba2cdc5 100644
+--- a/src/openvpn/socket.c
++++ b/src/openvpn/socket.c
+@@ -61,6 +61,12 @@ sf2gaf(const unsigned int getaddr_flags,
+     }
+ }
+ 
++#if defined(ENABLE_MPTCP)
++#ifndef IPPROTO_MPTCP
++#define IPPROTO_MPTCP 262
++#endif
++#endif
++
+ /*
+  * Functions related to the translation of DNS names to IP addresses.
+  */
+@@ -1085,6 +1091,39 @@ create_socket_udp(struct addrinfo *addrinfo, const unsigned int flags)
+     return sd;
+ }
+ 
++#if defined(ENABLE_MPTCP)
++socket_descriptor_t
++create_socket_mptcp(struct addrinfo *addrinfo)
++{
++    socket_descriptor_t sd;
++
++    ASSERT(addrinfo);
++    ASSERT(addrinfo->ai_socktype == SOCK_STREAM);
++    addrinfo->ai_protocol = IPPROTO_MPTCP;
++    if ((sd = socket(addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol)) < 0)
++    {
++        msg(M_ERR, "Cannot create MPTCP socket");
++    }
++
++    {
++        int on = 1;
++        if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR,
++                       (void *) &on, sizeof(on)) < 0)
++        {
++            msg(M_ERR, "TCP: Cannot setsockopt SO_REUSEADDR on TCP socket");
++        }
++    }
++
++    /* set socket file descriptor to not pass across execs, so that
++     * scripts don't have access to it */
++    set_cloexec(sd);
++
++    return sd;
++}
++
++#endif
++
++
+ static void
+ bind_local(struct link_socket *sock, const sa_family_t ai_family)
+ {
+@@ -1128,6 +1167,21 @@ create_socket(struct link_socket *sock, struct addrinfo *addr)
+     }
+     else if (addr->ai_protocol == IPPROTO_TCP || addr->ai_socktype == SOCK_STREAM)
+     {
++#if defined(ENABLE_MPTCP)
++      if(sock->info.multipath)
++      {
++	sock->sd = create_socket_mptcp(addr);
++	// Multipath TCP could fail because it is not enabled on this host
++	// Try regular TCP
++	if(sock->sd == -1)
++	{
++
++	  msg(M_NONFATAL, "Can't resolve MPTCP socket, fallback to TCP !");
++	  sock->sd = create_socket_tcp(addr);
++	}
++      }
++      else
++#endif	
+         sock->sd = create_socket_tcp(addr);
+     }
+     else
+@@ -1858,7 +1912,9 @@ link_socket_init_phase1(struct context *c, int mode)
+ #ifdef ENABLE_DEBUG
+     sock->gremlin = o->gremlin;
+ #endif
+-
++#if defined(ENABLE_MPTCP)
++    sock->info.multipath = o->enable_mptcp;
++#endif
+     sock->socket_buffer_sizes.rcvbuf = o->rcvbuf;
+     sock->socket_buffer_sizes.sndbuf = o->sndbuf;
+ 
+@@ -2213,7 +2269,7 @@ link_socket_init_phase2(struct context *c)
+         else
+ #endif
+         {
+-            create_socket(sock, sock->info.lsa->current_remote);
++	  create_socket(sock, sock->info.lsa->current_remote);
+         }
+ 
+     }
+diff --git a/src/openvpn/socket.h b/src/openvpn/socket.h
+index bfc1253b..7009daf0 100644
+--- a/src/openvpn/socket.h
++++ b/src/openvpn/socket.h
+@@ -121,6 +121,9 @@ struct link_socket_info
+     sa_family_t af;                     /* Address family like AF_INET, AF_INET6 or AF_UNSPEC*/
+     bool bind_ipv6_only;
+     int mtu_changed;            /* Set to true when mtu value is changed */
++#if defined(ENABLE_MPTCP)
++    bool multipath;
++#endif
+ };
+ 
+ /*
+@@ -244,6 +247,9 @@ struct link_socket
+ #ifdef ENABLE_DEBUG
+     int gremlin; /* --gremlin bits */
+ #endif
++#if defined(ENABLE_MPTCP)
++    bool enable_mptcp;
++#endif
+ };
+ 
+ /*
+@@ -469,6 +475,10 @@ bool ipv6_addr_safe(const char *ipv6_text_addr);
+ 
+ socket_descriptor_t create_socket_tcp(struct addrinfo *);
+ 
++#ifdef ENABLE_MPTCP
++socket_descriptor_t create_socket_mptcp(struct addrinfo *);
++#endif
++
+ socket_descriptor_t socket_do_accept(socket_descriptor_t sd,
+                                      struct link_socket_actual *act,
+                                      const bool nowait);

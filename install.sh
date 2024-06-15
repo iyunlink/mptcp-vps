@@ -17,8 +17,11 @@
 # fi
 
 # tar zxvf install.tar.gz
+path=$(pwd)
+echo $path
 apt update
-apt -y install pkg-config libpcre3-dev libmbedtls-dev libsodium-dev libc-ares-dev libev-dev  libtool automake make autoconf iperf3 ntp net-tools psmisc git python3-pip gcc
+bash openvpn_install.sh
+apt -y install pkg-config libpcre3-dev libmbedtls-dev libsodium-dev libc-ares-dev libev-dev  libtool automake make autoconf iperf3 ntp net-tools psmisc git python3-pip gcc libnl-genl-3-dev libcap-ng-dev openssl libssl-dev liblz4-dev liblzo2-dev libpam0g-dev libtool m4
 pip3 install speedtest-cli
 dpkg -i linux-headers_amd64.deb
 dpkg -i linux-image_amd64.deb
@@ -37,11 +40,11 @@ update-rc.d ss-server defaults
 update-rc.d iperf3 defaults
 
 #change iptable
-apt-get install iptables-persistent
+apt-get -y install iptables-persistent
 update-alternatives --set iptables /usr/sbin/iptables-legacy
 update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
-rm -rf linux-headers_amd64.deb linux-image_amd64.deb linux-libc-dev_amd64.deb shadowsocks-libev-3.3.5/ /etc/sysctl.d/custom.conf
+#rm -rf linux-headers_amd64.deb linux-image_amd64.deb linux-libc-dev_amd64.deb shadowsocks-libev-3.3.5/ /etc/sysctl.d/custom.conf
 
 
 # tar zxvf openvpnconf.tar.gz -C /
@@ -50,7 +53,23 @@ echo "Install OpenVPN"
 rm -f /var/lib/dpkg/lock
 rm -f /var/lib/dpkg/lock-frontend
 rm -f /lib/systemd/network/openvpn.network
-apt-get -y install openvpn easy-rsa
+apt-get -y install easy-rsa libnl-3-dev libnl-genl-3-dev liblz4-dev liblzo2-dev libpam-dev pkg-config libssl-dev
+wget -P $path  https://swupdate.openvpn.org/community/releases/openvpn-2.6.10.tar.gz
+tar -zxvf openvpn-2.6.10.tar.gz -C $path
+rm openvpn-2.6.10.tar.g*
+cp 900-add-MPTCP-support.patch openvpn-2.6.10
+cd openvpn-2.6.10
+#wget https://raw.githubusercontent.com/Ysurac/openmptcprouter-feeds/develop/openvpn/patches/900-add-MPTCP-support.patch
+patch -p1 < 900-add-MPTCP-support.patch
+./configure
+make && make install
+#cd ../
+cd $path
+rm openvpn-2.6.10 -rf
+cp $path/server.conf /etc/openvpn/server.conf
+cp $path/server.conf /etc/openvpn/server/server.conf
+pwd
+#apt-get -y install openvpn easy-rsa
 
 systemctl enable openvpn@server
 systemctl enable openvpn
@@ -78,15 +97,15 @@ sed -i 's/eth0/'$ethname'/g' /etc/iptables/rules.v6
 #安装 x-ui
 bash x-ui-install.sh
 
-apt install libssl-dev -f
-git clone https://gitee.com/link4all_admin/chipvpn.git
-cd chipvpn
-make
-cp bin/chipvpn /usr/bin/tcpvpn
-cp server.json /etc/
-cd ../
-rm -rf chipvpn
-update-rc.d tcpvpn defaults
+apt -y install libssl-dev -f
+#git clone https://gitee.com/link4all_admin/chipvpn.git
+#cd chipvpn
+#make
+#cp bin/chipvpn /usr/bin/tcpvpn
+#cp server.json /etc/
+#cd ../
+#rm -rf chipvpn
+#update-rc.d tcpvpn defaults
 bash x-ui-install.sh
 rm -rf ../vps
 
@@ -99,6 +118,6 @@ sed -i 's/4443/59999/g' /etc/config.json
 echo "Success, please allow TCP ports 59999, 60011 (for network bonding) and 3389 (for speedtest), reboot the server by 'reboot' command ."
 fi
 
-# reboot
+ #reboot
 
 

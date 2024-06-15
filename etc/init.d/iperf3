@@ -18,15 +18,12 @@ PORT=3389
 
 do_start () {
 	start-stop-daemon --start --make-pidfile --pidfile $IPERF3 --background --exec /usr/bin/iperf3 -- -s -p $PORT 
-	start-stop-daemon --start --make-pidfile --pidfile /var/run/bondx.pid --background --exec /usr/bin/bondx 
 }
 
 do_stop () {
 	start-stop-daemon --stop --pidfile $IPERF3
-	start-stop-daemon --stop --pidfile /var/run/bondx.pid
 	sleep 1
 	rm -f $IPERF3
-	rm -f /var/run/bondx.pid
 }
 
 case "$1" in
