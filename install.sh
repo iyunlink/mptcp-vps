@@ -1,6 +1,5 @@
 #!/bin/sh
 
-#wget http://www.mine.com.cn/dl/install.tar.gz
 
 # if grep 'DVD Binary' /etc/apt/sources.list;then
 # sed  -i '/DVD Binary/d' /etc/apt/sources.list
@@ -16,7 +15,7 @@
 # EOF
 # fi
 
-# tar zxvf install.tar.gz
+
 path=$(pwd)
 echo $path
 apt update
