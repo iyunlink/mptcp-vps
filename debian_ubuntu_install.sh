@@ -103,11 +103,13 @@ apt-get -y install apt-transport-https gnupg mosquitto-clients
 
 apt -y install git
 
-if curl -s cip.cc|grep "中国";then
-git clone https://gitee.com/link4all_admin/vps.git
-else
-git clone https://github.com/hewenhao2008/vps.git
-fi
+# if curl -s cip.cc|grep "中国";then
+# git clone https://gitee.com/link4all_admin/vps.git
+# else
+# git clone https://github.com/hewenhao2008/vps.git
+# fi
+
+git clone https://github.com/iyunlink/mptcp-vps
 
 cd vps
 sh install.sh
